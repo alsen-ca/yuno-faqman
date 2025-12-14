@@ -2,14 +2,16 @@ pub enum Command {
     NewTag,
     Exit,
     Help,
+    Clear,
     Unknown,
 }
 
 pub fn parse(input: &str) -> Command {
-    match input.trim() {
+    match input.trim().to_lowercase().as_str() {
         "new tag" => Command::NewTag,
-        "exit" => Command::Exit,
-        "help" => Command::Help,
+        "exit" | "e" => Command::Exit,
+        "help" | "h" => Command::Help,
+        "clear" => Command::Clear,
         _ => Command::Unknown,
     }
 }

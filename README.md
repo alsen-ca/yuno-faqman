@@ -7,9 +7,10 @@ If you still want the original python, you can switch to the 'old-main' branch.
 
 ## Requisites
 
+- Linux (Probably)
 - Rust
 - Cargo
-- Docker/Nerdctl
+- Docker
 
 ## Architecture
 
@@ -27,7 +28,7 @@ If you installed the binary from the release, you can simply:
     chmod +x yuno-faqman
     ./yuno-faqman
 
-Cloning:
+You can also run it as dev:
 
 1. Clone this repo
 2. cargo build
@@ -36,7 +37,7 @@ Cloning:
 Optionally, build the binary
 
 1. cargo build --release
-2. chmod +x yuno-faqman
+2. cd target/release; chmod +x yuno-faqman
 3. ./yuno-faqman
 
 ## DB Schema
