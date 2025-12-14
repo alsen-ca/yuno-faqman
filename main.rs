@@ -19,7 +19,7 @@ fn main() {
         match parse(cmd) {
             Command::NewTag => new_tag_flow(),
             Command::Exit => break,
-            Command::Help => println!("Welcome to Yuno REPL \nnew tag: write new tag\nexit: terminate this programm\n"),
+            Command::Help => println!("Welcome to Yuno FAQ Manager\nPossible commands:\n\nnew tag - create new tag\nexit - terminate this programm\n"),
             Command::Unknown => println!("unknown command"),
         }
     }

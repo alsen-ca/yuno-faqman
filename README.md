@@ -1,13 +1,14 @@
-# Yuno AI
-This is the refractores version of the REPL project.
+# Yuno FAQ Manager
+This is the refractored version of the REPL old-main branch.
 
-It will be overall refractored to a more modular architecture, expect some containers.
+It will be overall changed to a more modular architecture; expect some containers.
 
 If you still want the original python, you can switch to the 'old-main' branch.
 
 ## Requisites
 
-- Rust on your local machine
+- Rust
+- Cargo
 - Docker/Nerdctl
 
 ## Architecture
@@ -16,15 +17,27 @@ The REPL, which "acts as the frontend", will be written in Rust.
 It simply takes and forwards whatever commands are written on the Terminal.
 
 The content are send via an api call to the Go "backend".
-This will simply write the data to the MongoDB, as well as create the db schemas.
+This will simply write the data to the MongoDB. It also is responsible for creating the db schema.
 
 The database will be MongoDB (8.2.2).
 
 ## Quick Start
+If you installed the binary from the release, you can simply:
+
+    chmod +x yuno-faqman
+    ./yuno-faqman
+
+Cloning:
 
 1. Clone this repo
-2. rustc main.rs
-3. ./main
+2. cargo build
+3. cargo run
+
+Optionally, build the binary
+
+1. cargo build --release
+2. chmod +x yuno-faqman
+3. ./yuno-faqman
 
 ## DB Schema
 

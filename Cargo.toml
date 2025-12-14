@@ -1,0 +1,11 @@
+[package]
+name = "yuno-faqman"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.29"
+
+[[bin]]
+name = "yuno-faqman"
+path = "main.rs"

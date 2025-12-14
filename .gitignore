@@ -1,3 +1,7 @@
 data_qa
 *.zip
 main
+
+# Added by cargo
+
+/target
