@@ -11,7 +11,11 @@ mod controller;
 
 use commands::{parse, Command};
 use ui::tag::new_tag_flow;
+use ui::thema::new_thema_flow;
+use ui::qa::new_qa_flow;
 use controller::tag::handle_new_tag;
+use controller::thema::handle_new_thema;
+use controller::qa::handle_new_qa;
 
 fn main() {
     print_help();
@@ -28,6 +32,16 @@ fn main() {
             Command::NewTag => {
                 if let Some(tag) = new_tag_flow() {
                     handle_new_tag(tag);
+                }
+            }
+            Command::NewThema => {
+                if let Some(thema) = new_thema_flow() {
+                    handle_new_thema(thema);
+                }
+            }
+            Command::NewQa => {
+                if let Some(qa) = new_qa_flow() {
+                    handle_new_qa(qa);
                 }
             }
             Command::Exit => break,
@@ -54,5 +68,6 @@ fn print_help() {
     println!("new qa - create new combination of question and answer");
     
     println!("\nhelp / h - print this help guide");
+    println!("clear - clear the screen");
     println!("exit / e - terminate this programm\n");
 }

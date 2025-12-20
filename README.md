@@ -1,9 +1,9 @@
 # Yuno FAQ Manager
-This is the refractored version of the REPL old-main branch.
+This is the refractored version of the REPL from the old-main branch.
 
 It will be overall changed to a more modular architecture; expect some containers.
 
-If you still want the original python, you can switch to the 'old-main' branch.
+If you still want the original python script, you can switch to the 'old-main' branch and clone it.
 
 ## Requisites
 
@@ -18,7 +18,7 @@ The REPL, which "acts as the frontend", will be written in Rust.
 It simply takes and forwards whatever commands are written on the Terminal.
 
 The content are send via an api call to the Go "backend".
-This will simply write the data to the MongoDB. It also is responsible for creating the db schema.
+This will write the data to the Database. It also is responsible for creating the db schema.
 
 The database will be MongoDB (8.2.2).
 
