@@ -1,30 +1,28 @@
-use std::str::FromStr;
 use crate::ui::form::{Form, FormResult};
-use crate::controller::qa::{Qa, Language};
+use crate::controller::qa::Qa;
+use crate::ui::form::FormField;
 
 pub fn new_qa_flow() -> Option<Qa> {
-    let mut form = Form::new(&[
-        "question",
-        "answer",
-        "lang (en | de | es)",
-        "command",
+    let mut form = Form::new(vec![
+        FormField::text("question"),
+        FormField::text("answer"),
+        FormField::enum_field("lang",
+            &["en", "de", "es"],
+            0,
+        ),
+        FormField::text("command"),
     ]);
 
     match form.run() {
         FormResult::Save => {
-            let lang_input = &form.fields[2].1;
-            let lang = match Language::from_str(lang_input) {
-                Ok(d) => d,
-                Err(_) => {
-                    println!("\r\nInvalid language. Use en, de or es");
-                    return None;
-                }
-            };
+            let question = form.get_text("question")?;
+            let answer = form.get_text("answer")?;
+            let lang = form.get_enum("lang")?;
 
             Some(Qa {
-                question: form.fields[0].1.clone(),
-                answer: form.fields[1].1.clone(),
-                lang
+                question,
+                answer,
+                lang: lang.parse().ok()?
             })
         }
         FormResult::Exit => None,
