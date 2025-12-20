@@ -4,18 +4,18 @@ use std::str::FromStr;
 
 #[derive(Debug, Serialize)]
 pub enum Language {
-    En,
-    De,
-    Es
+    English,
+    German,
+    Spanish
 }
 
 impl FromStr for Language {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "en" => Ok(Language::En),
-            "de" => Ok(Language::De),
-            "es" => Ok(Language::Es),
+            "en" => Ok(Language::English),
+            "de" => Ok(Language::German),
+            "es" => Ok(Language::Spanish),
             _ => Err(())
         }
     }
