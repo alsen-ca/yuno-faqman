@@ -5,7 +5,7 @@ use crate::ui::form::FormField;
 pub fn new_qa_flow() -> Option<Qa> {
     let mut form = Form::new(vec![
         FormField::text("question"),
-        FormFIeld::weights("question_weights"),
+        FormField::weights("question_weights"),
         FormField::text("answer"),
         FormField::enum_field("lang",
             &["en", "de", "es"],
