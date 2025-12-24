@@ -1,6 +1,7 @@
 use serde::Serialize;
 use serde_json;
 use std::str::FromStr;
+use std::collections::HashMap
 
 #[derive(Debug, Serialize)]
 pub enum Language {
@@ -24,6 +25,7 @@ impl FromStr for Language {
 #[derive(Debug, Serialize)]
 pub struct Qa {
     pub question: String,
+    pub question_weights: HashMap<String, f32>,
     pub answer: String,
     pub lang: Language
 }

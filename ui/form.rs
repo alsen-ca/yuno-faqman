@@ -5,6 +5,7 @@ use crossterm::{
     cursor::MoveTo,
     ExecutableCommand
 };
+use stdout::collections::HashMap
 
 
 #[derive(Debug)]
@@ -16,6 +17,10 @@ pub enum FieldKind {
         options: Vec<String>,
         selected: usize,
     },
+    Weights {
+        items: Vec<WordWeight>,
+        selected: usize
+    }
 }
 
 pub struct FormField {
@@ -26,6 +31,11 @@ pub struct FormField {
 pub struct Form {
     pub fields: Vec<FormField>,
     pub cursor: usize,
+}
+
+pub struct WordWeight {
+    pub word: String,
+    pub value: String
 }
 
 impl FormField {
@@ -44,6 +54,16 @@ impl FormField {
             kind: FieldKind::Enum {
                 options: options.iter().map(|s| s.to_string()).collect(),
                 selected: default,
+            },
+        }
+    }
+
+    pub fn weights(label: &str) -> Self {
+        Self {
+            label: label.to_string(),
+            kind: FieldKind::Weights {
+                items: Vec::new(),
+                selected: 0,
             },
         }
     }
@@ -77,10 +97,17 @@ impl Form {
                         }
                     }
                     KeyCode::Char(c) => {
-                        if let FieldKind::Text { value } =
-                            &mut self.fields[self.cursor].kind
-                        {
+                        if let FieldKind::Text { value } = &mut self.fields[self.cursor].kind {
                             value.push(c);
+
+                            if self.fields[self.cursor].label == "question" {
+                                self.update_weights("question_weights", value);
+                            }
+                        }
+                        KeyCode::Char(c) if c.is_ascii_digit() || c == '.' => {
+                            if let FieldKind::Weights { items, selected } = &mut self.fields[self.cursor].kind {
+                                items[*selected].value.push(c);
+                            }
                         }
                     }
                     KeyCode::Backspace => {
@@ -110,7 +137,7 @@ impl Form {
                         }
                     }
                     KeyCode::Left => {
-                        if let FieldKind::Enum { selected, .. } = &mut self.fields[self.cursor].kind {
+                        if let FieldKind::Enum || let FieldKind::Weights { selected, .. } = &mut self.fields[self.cursor].kind {
                             if *selected > 0 {
                                 *selected -= 1;
                             }
@@ -118,7 +145,7 @@ impl Form {
                     }
 
                     KeyCode::Right => {
-                        if let FieldKind::Enum { options, selected } = &mut self.fields[self.cursor].kind {
+                        if let FieldKind::Enum { options, selected } || let FieldKind::Weights { selected, .. } = &mut self.fields[self.cursor].kind {
                             if *selected + 1 < options.len() {
                                 *selected += 1;
                             }
@@ -157,6 +184,48 @@ impl Form {
         })
     }
 
+    pub fn get_weights(&self, label: &str) -> Option<HashMap<String, f32>> {
+        self.fields.iter().find_map(|f| {
+            if f.label == label {
+                if let FieldKind::Weights { items, .. } = &f.kind {
+                    let map = items.iter()
+                        .filter_map(|ww| {
+                            ww.value.parse::<f32>().ok()
+                                .map(|v| (ww.word.clone(), v))
+                        })
+                        .collect();
+                    Some(map)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
+
+    fn generate_weights(text: &str) -> Vec<WordWeight> {
+        text.split_whitespace()
+            .map(|w| WordWeight {
+                word: w.to_lowercase(),
+                value: "1.0".to_string(),
+            })
+            .collect()
+    }
+
+    fn update_weights(&mut self, label: &str, text: &str) {
+        let items = Self::generate_weights(text);
+
+        for field in &mut self.fields {
+            if field.label == label {
+                if let FieldKind::Weights { items: w_items, selected } = &mut field.kind {
+                    *w_items = items;
+                    *selected = 0;
+                }
+            }
+        }
+    }
+
     fn render(&self) {
         let mut out = stdout();
         // Wipes the screen
@@ -168,6 +237,7 @@ impl Form {
             let value = match &field.kind {
                 FieldKind::Text { value } => value.as_str(),
                 FieldKind::Enum { options, selected } => &options[*selected],
+                FieldKind::Weights { items, selected } =>
             };
 
             if i == self.cursor {
