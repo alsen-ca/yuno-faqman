@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use super::{Form, FieldKind};
+
 impl Form {
     pub fn get_text(&self, label: &str) -> Option<String> {
         self.fields.iter().find_map(|field| {

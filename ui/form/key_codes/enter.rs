@@ -1,19 +1,19 @@
-KeyCode::Enter => {
-    let field = &self.fields[self.cursor];
+use crate::ui::form::{Form, FieldKind, FormResult};
 
-    if field.label == "command" {
-        if let FieldKind::Text { value } = &field.kind {
-            match value.as_str() {
-                "save" => {
-                    terminal::disable_raw_mode().unwrap();
-                    return FormResult::Save;
-                }
-                "exit" => {
-                    terminal::disable_raw_mode().unwrap();
-                    return FormResult::Exit;
-                }
-                _ => {}
-            }
-        }
+pub fn handle(form: &mut Form) -> Option<FormResult> {
+    let field = &form.fields[form.cursor];
+
+    if field.label != "command" {
+        return None;
+    }
+
+    let FieldKind::Text { value } = &field.kind else {
+        return None;
+    };
+
+    match value.as_str() {
+        "save" => Some(FormResult::Save),
+        "exit" => Some(FormResult::Exit),
+        _ => None,
     }
 }

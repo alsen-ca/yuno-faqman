@@ -1,7 +1,7 @@
 use serde::Serialize;
 use serde_json;
 use std::str::FromStr;
-use std::collections::HashMap
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize)]
 pub enum Language {

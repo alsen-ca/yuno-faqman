@@ -8,7 +8,7 @@ use crossterm::{
 use super::{Form, FieldKind};
 
 impl Form {
-    fn render(&self) {
+    pub fn render(&self) {
         let mut out = stdout();
         // Wipes the screen
         out.execute(Clear(ClearType::All)).unwrap();
@@ -20,7 +20,7 @@ impl Form {
                 FieldKind::Text { value } => value.as_str(),
                 FieldKind::Enum { options, selected } => &options[*selected],
                 FieldKind::Weights { items, selected } => {
-                    items.iter().enumerate().map(|(i, w)| {
+                    &items.iter().enumerate().map(|(i, w)| {
                         if i == *selected {
                             format!("[{}:{}]", w.word, w.value)
                         } else {
