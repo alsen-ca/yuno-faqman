@@ -7,11 +7,14 @@ pub fn handle(form: &mut Form, code: KeyCode) -> Option<FormResult> {
             if form.cursor > 0 {
                 form.cursor -= 1;
             }
+            None
         }
         KeyCode::Down => {
             if form.cursor + 1 < form.fields.len() {
                 form.cursor += 1;
             }
+            None
         }
+        _ => None
     }
 }

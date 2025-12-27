@@ -24,6 +24,7 @@ pub fn update_weights(fields: &mut [FormField], label: &str, text: &str) {
                 *w_items = items;
                 *selected = 0;
             }
+            break;
         }
     }
 }

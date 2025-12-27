@@ -17,12 +17,13 @@ pub fn new_qa_flow() -> Option<Qa> {
     match form.run() {
         FormResult::Save => {
             let question = form.get_text("question")?;
-            let question_weights = form.get_weights("question_weights");
+            let question_weights = form.get_weights("question_weights")?;
             let answer = form.get_text("answer")?;
             let lang = form.get_enum("lang")?;
 
             Some(Qa {
                 question,
+                question_weights,
                 answer,
                 lang: lang.parse().ok()?
             })
