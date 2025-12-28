@@ -16,7 +16,7 @@ pub fn handle(form: &mut Form, code: KeyCode) -> Option<FormResult> {
         KeyCode::Char(_) => char::handle(form, code),
         KeyCode::Enter => enter::handle(form),
         KeyCode::Backspace => backspace::handle(form),
-        KeyCode::Esc => return Some(FormResult::Exit),
+        KeyCode::Esc => return esc::handle(form),
         _ => None
     }
 }

@@ -15,7 +15,7 @@ pub fn parse(input: &str) -> Command {
         "new qa" => Command::NewQa,
         "exit" | "e" => Command::Exit,
         "help" | "h" => Command::Help,
-        "clear" => Command::Clear,
+        "clear" | "c"=> Command::Clear,
         _ => Command::Unknown,
     }
 }

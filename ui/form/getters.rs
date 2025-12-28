@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use super::{Form, FieldKind};
 
 impl Form {
@@ -24,22 +23,26 @@ impl Form {
         })
     }
 
-    pub fn get_weights(&self, label: &str) -> Option<HashMap<String, f32>> {
+    pub fn get_weights(&self, label: &str) -> Option<Vec<(String, f32)>> {
         self.fields.iter().find_map(|f| {
-            if f.label == label {
-                if let FieldKind::Weights { items, .. } = &f.kind {
-                    let map = items.iter()
+            if f.label != label {
+                return None
+            }
+            match &f.kind {
+                FieldKind::Weights { items, .. } => {
+                    let map = items
+                        .iter()
                         .filter_map(|ww| {
-                            ww.value.parse::<f32>().ok()
+                            ww.value
+                                .parse::<f32>()
+                                .ok()
                                 .map(|v| (ww.word.clone(), v))
                         })
-                        .collect();
+                        .collect::<Vec<(_, _)>>();
+
                     Some(map)
-                } else {
-                    None
                 }
-            } else {
-                None
+                _ => None,
             }
         })
     }

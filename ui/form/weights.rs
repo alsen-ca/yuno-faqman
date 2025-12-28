@@ -6,11 +6,17 @@ pub struct WordWeight {
     pub value: String,
 }
 
+static TRAILING_PUNCT: &[char] = &['.', ',', '?', '!', ';', ':'];
 pub fn generate_weights(text: &str) -> Vec<WordWeight> {
     text.split_whitespace()
-        .map(|w| WordWeight {
-            word: w.to_lowercase(),
-            value: "1.0".to_string(),
+        .map(|raw| {
+            // Remove any trailing punctuation characters
+            let cleaned = raw.trim_end_matches(|c: char| TRAILING_PUNCT.contains(&c));
+
+            WordWeight {
+                word: cleaned.to_lowercase(),
+                value: "1.0".to_string(),
+            }
         })
         .collect()
 }
