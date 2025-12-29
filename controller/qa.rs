@@ -9,13 +9,6 @@ pub enum Language {
     Spanish
 }
 
-#[derive(Debug, Serialize)]
-struct ApiWeight {
-    word: String,
-    weight: f32,
-}
-
-
 impl FromStr for Language {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -34,6 +27,12 @@ pub struct Qa {
     pub question_weights: Vec<(String, f32)>,
     pub answer: String,
     pub lang: Language
+}
+
+#[derive(Debug, Serialize)]
+struct ApiWeight {
+    word: String,
+    weight: f32,
 }
 
 #[derive(Serialize)]

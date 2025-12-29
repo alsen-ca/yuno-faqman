@@ -1,6 +1,7 @@
 data_qa
 *.zip
 main
+.history
 
 # Added by cargo
 
