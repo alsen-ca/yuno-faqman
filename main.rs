@@ -17,8 +17,8 @@ use ui::tag::new_tag_flow;
 use ui::thema::new_thema_flow;
 use ui::qa::new_qa_flow;
 use controller::tag::handle_new_tag;
-use controller::thema::handle_new_thema;
-use controller::qa::handle_new_qa;
+use controller::thema::{handle_new_thema, handle_get_thema};
+use controller::qa::{handle_new_qa};
 use history::History;
 
 enum ReplAction {
@@ -98,21 +98,33 @@ fn read_keys(buffer: &mut String, history: &mut History) -> io::Result<ReplActio
                     Command::NewTag => {
                         disable_raw_mode()?;
                         if let Some(tag) = new_tag_flow() {
-                            handle_new_tag(tag);
+                            tokio::runtime::Runtime::new()
+                                .unwrap()
+                                .block_on(handle_new_tag(tag));
                         }
                         enable_raw_mode()?;
                     }
                     Command::NewThema => {
                         disable_raw_mode()?;
                         if let Some(thema) = new_thema_flow() {
-                            handle_new_thema(thema);
+                            tokio::runtime::Runtime::new()
+                                .unwrap()
+                                .block_on(handle_new_thema(thema));
                         }
+                        enable_raw_mode()?;
+                    }
+                    Command::GetThema(toSearch) => {
+                        disable_raw_mode()?;
+                        tokio::runtime::Runtime::new().unwrap().block_on(handle_get_thema(toSearch));
                         enable_raw_mode()?;
                     }
                     Command::NewQa => {
                         disable_raw_mode()?;
+                        
                         if let Some(qa) = new_qa_flow() {
-                            handle_new_qa(qa);
+                            tokio::runtime::Runtime::new()
+                                .unwrap()
+                                .block_on(handle_new_qa(qa));
                         }
                         enable_raw_mode()?;
                     }

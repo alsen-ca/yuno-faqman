@@ -40,12 +40,7 @@ Optionally, build the binary
 2. cd target/release; chmod +x yuno-faqman
 3. ./yuno-faqman
 
-## DB Schema
-
-### Thema
-
-### Tag
-
-### TranslationGroup
-
-### QA
+## HTTP Endpoints
+/thema -> POST / GET?title=
+/tag
+/qa

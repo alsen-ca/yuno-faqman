@@ -1,32 +1,13 @@
 use serde::Serialize;
 use serde_json;
-use std::str::FromStr;
 
-#[derive(Debug, Serialize)]
-pub enum Language {
-    English,
-    German,
-    Spanish
-}
-
-impl FromStr for Language {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "en" => Ok(Language::English),
-            "de" => Ok(Language::German),
-            "es" => Ok(Language::Spanish),
-            _ => Err(())
-        }
-    }
-} 
 
 #[derive(Debug, Serialize)]
 pub struct Qa {
     pub question: String,
     pub question_weights: Vec<(String, f32)>,
     pub answer: String,
-    pub lang: Language
+    pub lang: String
 }
 
 #[derive(Debug, Serialize)]
@@ -40,10 +21,10 @@ pub struct ApiQa {
     question: String,
     question_weights: Vec<ApiWeight>,
     answer: String,
-    lang: Language,
+    lang: String,
 }
 
-pub fn handle_new_qa(qa: Qa) {
+pub async fn handle_new_qa(qa: Qa) {
     println!("\r\n--- QA RECEIVED BY CONTROLLER ---");
 
     let api_weights: Vec<ApiWeight> = qa.question_weights
@@ -58,8 +39,66 @@ pub fn handle_new_qa(qa: Qa) {
         lang: qa.lang,
     };
 
-    let json = serde_json::to_string_pretty(&api_qa)
-        .expect("failed to serialize QA");
+    let json = match serde_json::to_string_pretty(&api_qa) {
+        Ok(j) => j,
+        Err(e) => {
+            println!("Failed to serialize qa: {}", e);
+            return;
+        }
+    };
 
     println!("{}", json);
+
+
+    let client = reqwest::Client::new();
+    let response = match client
+        .post("http://127.0.0.1:8221/qa")
+        .header("Content-Type", "application/json")
+        .body(json)
+        .send()
+        .await
+    {
+        Ok(res) => res,
+        Err(e) => {
+            println!("Failed to send request: {}", e);
+            return;
+        }
+    };
+
+    if response.status().is_success() {
+        println!("Qa sent successfully!");
+    } else {
+        println!("Failed to send qa: {:?}", response.status());
+    }
 }
+/*
+pub async fn handle_get_qa(question: String) {
+    println!("\r\n--- Requestion QA Based on Question ---");
+    let json = match serde_json::to_string_pretty(&question) {
+        Ok(j) => j,
+        Err(e) => {
+            println!("Failed to serialize qa: {}", e);
+            return;
+        }
+    };
+
+    println!("{}", json);
+
+    let client = reqwest::Client::new();
+    let response = match client
+        .get("http://127.0.0.1:8221/qa")
+        .await
+    {
+        Ok(res) => res,
+        Err(e) => {
+            println!("Failed to recieve request: {}", e);
+            return;
+        }
+    };
+
+    if response.status().is_success() {
+        println!("Qa recieved successfully!");
+    } else {
+        println!("Failed to recieve qa: {:?}", response.status());
+    }
+}*/
