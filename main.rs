@@ -16,7 +16,7 @@ use commands::{parse, Command};
 use ui::tag::new_tag_flow;
 use ui::thema::new_thema_flow;
 use ui::qa::new_qa_flow;
-use controller::tag::handle_new_tag;
+use controller::tag::{handle_new_tag, handle_get_tag};
 use controller::thema::{handle_new_thema, handle_get_thema};
 use controller::qa::{handle_new_qa};
 use history::History;
@@ -104,6 +104,11 @@ fn read_keys(buffer: &mut String, history: &mut History) -> io::Result<ReplActio
                         }
                         enable_raw_mode()?;
                     }
+                    Command::GetTag { lang, question} => {
+                        disable_raw_mode()?;
+                        tokio::runtime::Runtime::new().unwrap().block_on(handle_get_tag(lang, question));
+                        enable_raw_mode()?;
+                    }
                     Command::NewThema => {
                         disable_raw_mode()?;
                         if let Some(thema) = new_thema_flow() {
@@ -113,9 +118,9 @@ fn read_keys(buffer: &mut String, history: &mut History) -> io::Result<ReplActio
                         }
                         enable_raw_mode()?;
                     }
-                    Command::GetThema(toSearch) => {
+                    Command::GetThema(to_search) => {
                         disable_raw_mode()?;
-                        tokio::runtime::Runtime::new().unwrap().block_on(handle_get_thema(toSearch));
+                        tokio::runtime::Runtime::new().unwrap().block_on(handle_get_thema(to_search));
                         enable_raw_mode()?;
                     }
                     Command::NewQa => {
@@ -155,6 +160,9 @@ fn print_help() {
     println!("new tag - create new tag");
     println!("new thema - create new thema");
     println!("new qa - create new combination of question and answer");
+    println!("get thema [<thema title> | all] - find thema by title or all");
+    println!("get tag [<tag en_og | de_trans | es_trans> | all] - find tag by any language or all");
+    println!("get qa [<qa question>] - find qa by exact question");
     
     println!("\nhelp / h - print this help guide");
     println!("clear / c - clear the screen");
