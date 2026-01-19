@@ -1,4 +1,5 @@
 use super::weights::WordWeight;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub enum FieldKind {
@@ -12,7 +13,12 @@ pub enum FieldKind {
     Weights {
         items: Vec<WordWeight>,
         selected: usize
-    }
+    },
+    UuidSelector {
+        title: String, // Entered by form
+        uuid: Option<Uuid> // Resolve uuid based on title, if found
+    },
+
 }
 
 #[derive(Debug)]
@@ -49,6 +55,16 @@ impl FormField {
                 items: Vec::new(),
                 selected: 0,
             },
+        }
+    }
+
+    pub fn convert_uuid(label: &str) -> Self {
+        Self {
+            label: label.to_string(),
+            kind: FieldKind::UuidSelector {
+                title: String::new(),
+                uuid: None
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use reqwest;
+use crate::domain::tag::{WholeTag, TAGS};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Tag {
@@ -101,5 +102,15 @@ fn parse_get_response(body: &str, is_all: bool) -> Result<(), Box<dyn std::error
         let _tag: Tag = serde_json::from_str(body)?;
         println!("{}", body);
     }
+    Ok(())
+}
+
+pub async fn fetch_and_store_tags() -> Result<(), Box<dyn std::error::Error>> {
+    let response = reqwest::get(API_URL).await?;
+    let tags: Vec<WholeTag> = response.json().await?;
+
+    let mut copy_tags = TAGS.lock().unwrap();
+    *copy_tags = tags;
+
     Ok(())
 }

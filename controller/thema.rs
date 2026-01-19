@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use reqwest;
+use crate::domain::thema::{WholeThema, THEMEN};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Thema {
@@ -94,5 +95,15 @@ fn parse_get_response(body: &str, is_all: bool) -> Result<(), Box<dyn std::error
         let _thema: Thema = serde_json::from_str(body)?;
         println!("{}", body);
     }
+    Ok(())
+}
+
+pub async fn fetch_and_store_themas() -> Result<(), Box<dyn std::error::Error>> {
+    let response = reqwest::get(API_URL).await?;
+    let themas: Vec<WholeThema> = response.json().await?;
+
+    let mut themen = THEMEN.lock().unwrap();
+    *themen = themas;
+
     Ok(())
 }

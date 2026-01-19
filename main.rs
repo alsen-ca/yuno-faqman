@@ -11,15 +11,18 @@ mod commands;
 mod ui;
 mod controller;
 mod history;
+mod domain;
 
 use commands::{parse, Command};
 use ui::tag::new_tag_flow;
 use ui::thema::new_thema_flow;
 use ui::qa::new_qa_flow;
-use controller::tag::{handle_new_tag, handle_get_tag};
-use controller::thema::{handle_new_thema, handle_get_thema};
-use controller::qa::{handle_new_qa};
+use controller::tag::{handle_new_tag, handle_get_tag, fetch_and_store_tags};
+use controller::thema::{handle_new_thema, handle_get_thema, fetch_and_store_themas};
+use controller::qa::{handle_new_qa, handle_get_qa};
 use history::History;
+use domain::thema::{get_themas};
+use domain::tag::{get_tags};
 
 enum ReplAction {
     Continue,
@@ -33,6 +36,16 @@ fn main() -> io::Result<()> {
     stdout.execute(EnterAlternateScreen)?;
     print_greeting();
     print_help();
+    fetch_data();
+    let _ = disable_raw_mode();
+    for thema in get_themas() {
+        println!("THEMEN loaded from memory! ID: {}, Title: {}", thema.id, thema.title)
+    }
+    for tag in get_tags() {
+        println!("TAGS loaded from memory! ID: {}, ENglish: {}, German: {}, Spanish: {}", tag.id, tag.en_og, tag.de_trans, tag.es_trans)
+    }
+    let _ = enable_raw_mode();
+
 
     let mut history = History::load(".history").unwrap();
     let mut buffer = String::new();
@@ -133,6 +146,11 @@ fn read_keys(buffer: &mut String, history: &mut History) -> io::Result<ReplActio
                         }
                         enable_raw_mode()?;
                     }
+                    Command::GetQa(to_search) => {
+                        disable_raw_mode()?;
+                        tokio::runtime::Runtime::new().unwrap().block_on(handle_get_qa(to_search));
+                        enable_raw_mode()?;
+                    }
                     Command::Help => print_help(),
                     Command::Clear => clear_screen(),
                     Command::Exit => return Ok(ReplAction::Exit),
@@ -162,7 +180,7 @@ fn print_help() {
     println!("new qa - create new combination of question and answer");
     println!("get thema [<thema title> | all] - find thema by title or all");
     println!("get tag [<tag en_og | de_trans | es_trans> | all] - find tag by any language or all");
-    println!("get qa [<qa question>] - find qa by exact question");
+    println!("get qa [<qa question> | all] - find qa by exact question or all");
     
     println!("\nhelp / h - print this help guide");
     println!("clear / c - clear the screen");
@@ -175,3 +193,11 @@ fn print_greeting() {
     let _ = enable_raw_mode();
 }
 
+fn fetch_data() {
+    if let Err(e) = tokio::runtime::Runtime::new().unwrap().block_on(fetch_and_store_themas()) {
+        eprintln!("Failed to fetch and store themas: {}", e);
+    }
+    if let Err(e) = tokio::runtime::Runtime::new().unwrap().block_on(fetch_and_store_tags()) {
+        eprintln!("Failed to fetch and store tags: {}", e);
+    }
+}

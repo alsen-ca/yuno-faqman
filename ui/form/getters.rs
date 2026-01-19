@@ -1,4 +1,6 @@
 use super::{Form, FieldKind};
+use uuid::Uuid;
+use crate::domain::thema::THEMEN;
 
 impl Form {
     pub fn get_text(&self, label: &str) -> Option<String> {
@@ -44,6 +46,27 @@ impl Form {
                 }
                 _ => None,
             }
+        })
+    }
+
+    pub fn get_convert_to_uuid(&self, label: &str) -> Option<Uuid> {
+        self.fields.iter().find_map(|field| {
+            if field.label == label {
+                if let FieldKind::UuidSelector { title, uuid } = &field.kind {
+                    // If UUID is already resolved, return it
+                    if let Some(uuid) = uuid {
+                        return Some(*uuid);
+                    }
+                    // Otherwise, resolve the UUID from the title
+                    let themen = THEMEN.lock().unwrap();
+                    if let Some(thema) = themen.iter().find(|t| t.title == *title) {
+                        return Some(thema.id);
+                    } else {
+                        eprintln!("No such thema: {}", title);
+                    }
+                }
+            }
+            None
         })
     }
 }

@@ -4,6 +4,7 @@ pub enum Command {
     NewThema,
     GetThema(String),
     NewQa,
+    GetQa(String),
     Exit,
     Help,
     Clear,
@@ -38,6 +39,7 @@ pub fn parse(input: &str) -> Command {
             }
         }
         ["get", "thema", ..] => extract_search_term(&input_og, "get thema ").map_or(Command::Unknown, Command::GetThema),
+        ["get", "qa", ..] => extract_search_term(&input_og, "get qa ").map_or(Command::Unknown, Command::GetQa),
 
         ["new", "tag"] => Command::NewTag,
         ["new", "thema"] => Command::NewThema,

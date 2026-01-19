@@ -4,6 +4,7 @@ use crossterm::{
     terminal::{Clear, ClearType},
     ExecutableCommand,
 };
+use crate::domain::thema::THEMEN;
 
 use super::{Form, FieldKind};
 
@@ -16,11 +17,11 @@ impl Form {
         out.execute(MoveTo(0, 0)).unwrap();
 
         for (i, field) in self.fields.iter().enumerate() {
-            let value = match &field.kind {
-                FieldKind::Text { value } => value.as_str(),
-                FieldKind::Enum { options, selected } => &options[*selected],
+            let value: String = match &field.kind {
+                FieldKind::Text { value } => value.clone(),
+                FieldKind::Enum { options, selected } => options[*selected].clone(),
                 FieldKind::Weights { items, selected } => {
-                    &items.iter().enumerate().map(|(i, w)| {
+                    items.iter().enumerate().map(|(i, w)| {
                         if i == *selected {
                             format!("[{}:{}]", w.word, w.value)
                         } else {
@@ -28,6 +29,14 @@ impl Form {
                         }
                     })
                     .collect::<Vec<_>>().join(" ")
+                },
+                FieldKind::UuidSelector { title, .. } => {
+                    let themen = THEMEN.lock().unwrap();
+                    if themen.iter().any(|t| t.title == *title) {
+                        title.clone()
+                    } else {
+                        format!("{} (No such Thema)", title)
+                    }
                 }
             };
 

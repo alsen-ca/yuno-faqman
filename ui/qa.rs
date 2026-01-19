@@ -11,6 +11,7 @@ pub fn new_qa_flow() -> Option<Qa> {
             &["en", "de", "es"],
             0,
         ),
+        FormField::convert_uuid("thema_id"),
         FormField::text("command"),
     ]);
 
@@ -20,12 +21,15 @@ pub fn new_qa_flow() -> Option<Qa> {
             let question_weights = form.get_weights("question_weights")?;
             let answer = form.get_text("answer")?;
             let lang = form.get_enum("lang")?;
+            let thema_id = form.get_convert_to_uuid("thema_id")?;
+            println!("Thema id is: {}", thema_id);
 
             Some(Qa {
                 question,
                 question_weights,
                 answer,
-                lang: lang.parse().ok()?
+                lang: lang.parse().ok()?,
+                thema_id,
             })
         }
         FormResult::Exit => None,

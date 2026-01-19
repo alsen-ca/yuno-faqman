@@ -61,6 +61,10 @@ pub fn handle(form: &mut Form, code: KeyCode) -> Option<FormResult> {
         }
 
         FieldKind::Enum { .. } => {}
+
+        FieldKind::UuidSelector { title, .. } => {
+            title.push(c);
+        }
     }
 
     if let Some(text) = updated_text {
