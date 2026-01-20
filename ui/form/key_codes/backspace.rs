@@ -12,6 +12,16 @@ pub fn handle(form: &mut Form) -> Option<FormResult> {
             }
         }
 
+        FieldKind::UuidSelector { title, .. } => {
+            title.pop();
+        }
+
+
+        FieldKind::MultiUuidSelector { tags, selected } => {
+            let Some(selected_tag) = tags.get_mut(*selected) else { return None };
+            selected_tag.tag_title.pop();
+        }
+
         _ => {}
     }
     None

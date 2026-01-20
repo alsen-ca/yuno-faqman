@@ -12,6 +12,7 @@ pub fn new_qa_flow() -> Option<Qa> {
             0,
         ),
         FormField::convert_uuid("thema_id"),
+        FormField::multi_uuid_selector("tag_ids"),
         FormField::text("command"),
     ]);
 
@@ -22,6 +23,7 @@ pub fn new_qa_flow() -> Option<Qa> {
             let answer = form.get_text("answer")?;
             let lang = form.get_enum("lang")?;
             let thema_id = form.get_convert_to_uuid("thema_id")?;
+            let tag_ids = form.get_multi_uuids("tag_ids")?;
             println!("Thema id is: {}", thema_id);
 
             Some(Qa {
@@ -30,6 +32,7 @@ pub fn new_qa_flow() -> Option<Qa> {
                 answer,
                 lang: lang.parse().ok()?,
                 thema_id,
+                tag_ids,
             })
         }
         FormResult::Exit => None,

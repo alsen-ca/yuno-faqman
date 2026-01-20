@@ -18,7 +18,16 @@ pub enum FieldKind {
         title: String, // Entered by form
         uuid: Option<Uuid> // Resolve uuid based on title, if found
     },
+    MultiUuidSelector {
+        tags: Vec<TagSelector>,
+        selected: usize
+    },
+}
 
+#[derive(Debug)]
+pub struct TagSelector {
+    pub tag_title: String,
+    pub uuid: Option<Uuid>,
 }
 
 #[derive(Debug)]
@@ -64,6 +73,16 @@ impl FormField {
             kind: FieldKind::UuidSelector {
                 title: String::new(),
                 uuid: None
+            }
+        }
+    }
+
+    pub fn multi_uuid_selector(label: &str) -> Self {
+        Self {
+            label: label.to_string(),
+            kind: FieldKind::MultiUuidSelector {
+                tags: vec![TagSelector { tag_title: String::new(), uuid: None }],
+                selected: 0
             }
         }
     }

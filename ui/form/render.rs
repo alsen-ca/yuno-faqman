@@ -33,10 +33,29 @@ impl Form {
                 FieldKind::UuidSelector { title, .. } => {
                     let themen = THEMEN.lock().unwrap();
                     if themen.iter().any(|t| t.title == *title) {
-                        title.clone()
+                        format!(
+                            "{}{}{}",
+                            crossterm::style::SetForegroundColor(crossterm::style::Color::Green),
+                            title,
+                            crossterm::style::ResetColor
+                        )
                     } else {
-                        format!("{} (No such Thema)", title)
+                        format!(
+                            "{}{}{}",
+                            crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
+                            format!("{} (No such Thema)", title),
+                            crossterm::style::ResetColor
+                        )
                     }
+                }
+                FieldKind::MultiUuidSelector { tags, selected } => {
+                    tags.iter().enumerate().map(|(i, tag)| {
+                        if i == *selected {
+                            format!("[{}]", tag.tag_title) // Selected tag is wrapped in brackets
+                        } else {
+                            tag.tag_title.clone() // Unselected tags are plain
+                        }
+                    }).collect::<Vec<_>>().join(" - ")
                 }
             };
 

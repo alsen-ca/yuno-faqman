@@ -65,6 +65,11 @@ pub fn handle(form: &mut Form, code: KeyCode) -> Option<FormResult> {
         FieldKind::UuidSelector { title, .. } => {
             title.push(c);
         }
+
+        FieldKind::MultiUuidSelector { tags, selected } => {
+            let Some(selected_tag) = tags.get_mut(*selected) else { return None };
+            selected_tag.tag_title.push(c);
+        }
     }
 
     if let Some(text) = updated_text {

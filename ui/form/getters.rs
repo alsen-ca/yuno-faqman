@@ -51,22 +51,41 @@ impl Form {
 
     pub fn get_convert_to_uuid(&self, label: &str) -> Option<Uuid> {
         self.fields.iter().find_map(|field| {
-            if field.label == label {
-                if let FieldKind::UuidSelector { title, uuid } = &field.kind {
-                    // If UUID is already resolved, return it
-                    if let Some(uuid) = uuid {
-                        return Some(*uuid);
-                    }
-                    // Otherwise, resolve the UUID from the title
-                    let themen = THEMEN.lock().unwrap();
-                    if let Some(thema) = themen.iter().find(|t| t.title == *title) {
-                        return Some(thema.id);
-                    } else {
-                        eprintln!("No such thema: {}", title);
-                    }
+            if field.label != label {
+                return None
+            }
+            if let FieldKind::UuidSelector { title, uuid } = &field.kind {
+                // UUID is already resolved
+                if let Some(uuid) = uuid {
+                    return Some(*uuid);
+                }
+                // Resolve uuid from title
+                let themen = THEMEN.lock().unwrap();
+                if let Some(thema) = themen.iter().find(|t| t.title == *title) {
+                    return Some(thema.id);
+                } else {
+                    eprintln!("No such thema: {}", title);
                 }
             }
             None
+        })
+    }
+
+    pub fn get_multi_uuids(&self, label: &str) -> Option<Vec<Uuid>> {
+        self.fields.iter().find_map(|f| {
+            if f.label != label {
+                return None;
+            }
+            match &f.kind {
+                FieldKind::MultiUuidSelector { tags, .. } => {
+                    let uuids = tags
+                        .iter()
+                        .filter_map(|tag| tag.uuid)
+                        .collect::<Vec<_>>();
+                    Some(uuids)
+                }
+                _ => None,
+            }
         })
     }
 }

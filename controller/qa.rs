@@ -10,6 +10,7 @@ pub struct Qa {
     pub answer: String,
     pub lang: String,
     pub thema_id: Uuid,
+    pub tag_ids: Vec<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,6 +38,7 @@ pub struct ApiQa {
     answer: String,
     lang: String,
     thema_id: Uuid,
+    tag_ids: Vec<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -62,6 +64,7 @@ pub async fn handle_new_qa(qa: Qa) {
         answer: qa.answer,
         lang: qa.lang,
         thema_id: qa.thema_id,
+        tag_ids: qa.tag_ids,
     };
 
     let json = match serde_json::to_string_pretty(&api_qa) {
