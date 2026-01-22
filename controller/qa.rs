@@ -1,6 +1,8 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use uuid::Uuid;
+use crate::domain::thema::THEMEN;
+use crate::domain::tag::TAGS;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,7 +30,7 @@ pub struct QaRes {
     #[serde(rename = "ThemaID")]
     pub thema_id: String,
     #[serde(rename = "TagIDs")]
-    pub tag_ids: Option<String>,
+    pub tag_ids: Option<Vec<String>>,
 }
 
 #[derive(Serialize)]
@@ -132,6 +134,7 @@ pub async fn handle_get_qa(question: String) {
         };
 
         if let Err(e) = parse_get_response(&body, question == "all") {
+            println!("body is: {}", body);
             println!("Failed to parse response: {}", e);
         }
     } else {
@@ -143,11 +146,15 @@ fn parse_get_response(body: &str, is_all: bool) -> Result<(), Box<dyn std::error
     if is_all {
         let qas: Vec<QaRes> = serde_json::from_str(body)?;
         for (index, qa) in qas.iter().enumerate() {
+            let thema_title = resolve_thema_title(&qa.thema_id);
+            let tag_titles = resolve_tag_titles(&qa.tag_ids);
             println!(
-                "{}. Question: {} \nAnswer: {}",
+                "{}. Question: {} \nAnswer: {} \nThema: {} \nTags: {}",
                 index + 1,
                 qa.question,
-                qa.answer
+                qa.answer,
+                thema_title,
+                tag_titles
             );
         }
     } else {
@@ -156,4 +163,44 @@ fn parse_get_response(body: &str, is_all: bool) -> Result<(), Box<dyn std::error
         println!("{}", body);
     }
     Ok(())
+}
+
+fn resolve_thema_title(thema_id_str: &str) -> String {
+    // Parse the string to Uuid
+    let thema_id = match Uuid::parse_str(thema_id_str) {
+        Ok(id) => id,
+        Err(_) => return "Unknown Thema".to_string(),
+    };
+
+    // Lock THEMEN and find the corresponding title
+    let themen = THEMEN.lock().unwrap();
+    themen.iter()
+        .find(|thema| thema.id == thema_id)
+        .map(|thema| thema.title.clone())
+        .unwrap_or_else(|| "Unknown Thema".to_string())
+}
+
+fn resolve_tag_titles(tag_ids: &Option<Vec<String>>) -> String {
+    // If tag_ids is None, return "No Tags"
+    let tag_ids = match tag_ids {
+        Some(ids) => ids,
+        None => return "No Tags".to_string(),
+    };
+
+    // Parse string into a Vec<Uuid>
+    let tag_uuids: Vec<Uuid> = tag_ids.iter()
+        .map(|s| Uuid::parse_str(s.trim()).unwrap_or_else(|_| Uuid::nil()))
+        .collect();
+
+    // Lock TAGS and find the corresponding titles
+    let tags = TAGS.lock().unwrap();
+    tag_uuids.iter()
+        .map(|tag_id| {
+            tags.iter()
+                .find(|tag| tag.id == *tag_id)
+                .map(|tag| tag.en_og.clone())
+                .unwrap_or_else(|| "Unknown Tag".to_string())
+        })
+        .collect::<Vec<String>>()
+        .join(", ")
 }

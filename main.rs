@@ -21,8 +21,6 @@ use controller::tag::{handle_new_tag, handle_get_tag, fetch_and_store_tags};
 use controller::thema::{handle_new_thema, handle_get_thema, fetch_and_store_themas};
 use controller::qa::{handle_new_qa, handle_get_qa};
 use history::History;
-use domain::thema::{get_themas};
-use domain::tag::{get_tags};
 
 enum ReplAction {
     Continue,
@@ -37,14 +35,6 @@ fn main() -> io::Result<()> {
     print_greeting();
     print_help();
     fetch_data();
-    let _ = disable_raw_mode();
-    for thema in get_themas() {
-        println!("THEMEN loaded from memory! ID: {}, Title: {}", thema.id, thema.title)
-    }
-    for tag in get_tags() {
-        println!("TAGS loaded from memory! ID: {}, ENglish: {}, German: {}, Spanish: {}", tag.id, tag.en_og, tag.de_trans, tag.es_trans)
-    }
-    let _ = enable_raw_mode();
 
 
     let mut history = History::load(".history").unwrap();

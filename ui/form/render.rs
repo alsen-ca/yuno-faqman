@@ -5,6 +5,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use crate::domain::thema::THEMEN;
+use crate::domain::tag::TAGS;
 
 use super::{Form, FieldKind};
 
@@ -49,11 +50,25 @@ impl Form {
                     }
                 }
                 FieldKind::MultiUuidSelector { tags, selected } => {
+                    let tags_list = TAGS.lock().unwrap();
+                    let lang = self.get_enum("lang").unwrap_or_else(|| "en".to_string());
                     tags.iter().enumerate().map(|(i, tag)| {
-                        if i == *selected {
-                            format!("[{}]", tag.tag_title) // Selected tag is wrapped in brackets
+                        let exists = match lang.as_str() {
+                            "en" => tags_list.iter().any(|t| t.en_og == tag.tag_title),
+                            "de" => tags_list.iter().any(|t| t.de_trans == tag.tag_title),
+                            "es" => tags_list.iter().any(|t| t.es_trans == tag.tag_title),
+                            _ => tags_list.iter().any(|t| t.en_og == tag.tag_title), // Default to "en"
+                        };
+                        let color = if exists {
+                            crossterm::style::SetForegroundColor(crossterm::style::Color::Green)
                         } else {
-                            tag.tag_title.clone() // Unselected tags are plain
+                            crossterm::style::SetForegroundColor(crossterm::style::Color::Red)
+                        };
+                        let reset = crossterm::style::ResetColor;
+                        if i == *selected {
+                            format!("{}[{}]{}", color, tag.tag_title, reset)
+                        } else {
+                            format!("{}{}{}", color, tag.tag_title, reset)
                         }
                     }).collect::<Vec<_>>().join(" - ")
                 }

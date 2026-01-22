@@ -1,6 +1,7 @@
 use super::{Form, FieldKind};
 use uuid::Uuid;
 use crate::domain::thema::THEMEN;
+use crate::domain::tag::TAGS;
 
 impl Form {
     pub fn get_text(&self, label: &str) -> Option<String> {
@@ -16,10 +17,9 @@ impl Form {
 
     pub fn get_enum(&self, label: &str) -> Option<String> {
         self.fields.iter().find_map(|field| {
-            if field.label == label {
-                if let FieldKind::Enum { options, selected } = &field.kind {
-                    return Some(options[*selected].clone());
-                }
+            if field.label != label { return None }
+            if let FieldKind::Enum { options, selected } = &field.kind {
+                return Some(options[*selected].clone());
             }
             None
         })
@@ -78,10 +78,24 @@ impl Form {
             }
             match &f.kind {
                 FieldKind::MultiUuidSelector { tags, .. } => {
-                    let uuids = tags
-                        .iter()
-                        .filter_map(|tag| tag.uuid)
-                        .collect::<Vec<_>>();
+                    let tags_list = TAGS.lock().unwrap();
+                    let lang = self.get_enum("lang").unwrap_or_else(|| "en".to_string());
+
+                    let uuids: Vec<Uuid> = tags.iter()
+                        .filter_map(|tag| {
+                            tags_list.iter()
+                                .find(|t| {
+                                    match lang.as_str() {
+                                        "en" => t.en_og == tag.tag_title,
+                                        "de" => t.de_trans == tag.tag_title,
+                                        "es" => t.es_trans == tag.tag_title,
+                                        _ => t.en_og == tag.tag_title, // Default to "en"
+                                    }
+                                })
+                                .map(|t| t.id)
+                        })
+                        .collect();
+
                     Some(uuids)
                 }
                 _ => None,
